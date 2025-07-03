@@ -672,3 +672,291 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
+//////// NÚMERO DE TRÁMITE ////////
+document.addEventListener('DOMContentLoaded', function() {
+    const tramiteInput = document.querySelector('input[name="numeroTramite"]');
+    const tramiteDisplaySpan = document.querySelector('.DNI_content1Letters[ordertext="14"] .DNI_text');
+
+    // Función para guardar el número de trámite
+    function saveNumeroTramite(numero) {
+        localStorage.setItem('dniNumeroTramite', numero);
+    }
+
+    // Función para cargar el número de trámite
+    function loadNumeroTramite() {
+        return localStorage.getItem('dniNumeroTramite') || '00659793176'; // Valor por defecto si no hay nada
+    }
+
+    // Función para actualizar el display del número de trámite en el DNI
+    function updateNumeroTramiteDisplay() {
+        if (tramiteDisplaySpan) {
+            tramiteDisplaySpan.textContent = loadNumeroTramite();
+        }
+    }
+
+    // --- Lógica para la página tramites.html (input y display) ---
+    if (tramiteInput) {
+        // Cargar valor guardado al input al iniciar
+        tramiteInput.value = loadNumeroTramite();
+
+        // Escuchar cambios en el input
+        tramiteInput.addEventListener('input', function() {
+            if (this.value.length > 11) {
+                this.value = this.value.substring(0, 11);
+            }
+            saveNumeroTramite(this.value);
+            updateNumeroTramiteDisplay(); // Actualizar el display en el DNI en tiempo real
+        });
+    }
+
+    // --- Lógica para actualizar el display en cualquier página que lo tenga ---
+    // (Esto asegura que si el valor cambia en tramites.html, se refleje también en dni-digital.html si se carga después, etc.)
+    if (tramiteDisplaySpan) {
+        updateNumeroTramiteDisplay();
+    }
+
+    // Escuchar cambios en localStorage desde otras pestañas/contextos (si es necesario)
+    window.addEventListener('storage', function(event) {
+        if (event.key === 'dniNumeroTramite') {
+            if (tramiteInput) { // Si estamos en la página con el input, actualizarlo
+                tramiteInput.value = event.newValue;
+            }
+            if (tramiteDisplaySpan) { // Actualizar el display en el DNI
+                updateNumeroTramiteDisplay();
+            }
+        }
+    });
+});
+
+
+//////// FIRMA DIBUJADA ////////
+document.addEventListener('DOMContentLoaded', function() {
+    const firmaCanvas = document.getElementById('firmaCanvas');
+    const limpiarFirmaBtn = document.getElementById('limpiarFirmaBtn');
+    // Asumimos que la imagen de la firma en el DNI tiene alt="DNI_signature"
+    const dniSignatureImg = document.querySelector('img[alt="DNI_signature"]'); 
+    const defaultSignatureSrc = 'imgs/firma.png'; // Firma por defecto
+
+    if (firmaCanvas && dniSignatureImg) { // Solo ejecutar si todos los elementos necesarios existen
+        const ctx = firmaCanvas.getContext('2d');
+        let drawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        // Configuración inicial del trazo
+        ctx.strokeStyle = '#000000'; // Color del trazo
+        ctx.lineWidth = 2;          // Grosor del trazo
+        ctx.lineJoin = 'round';     // Uniones redondeadas
+        ctx.lineCap = 'round';      // Extremos redondeados
+
+        // Función para guardar la firma (Data URL)
+        function saveFirma(dataUrl) {
+            if (dataUrl) {
+                localStorage.setItem('dniFirmaPersonal', dataUrl);
+            } else {
+                localStorage.removeItem('dniFirmaPersonal');
+            }
+        }
+
+        // Función para cargar la firma guardada
+        function loadFirma() {
+            return localStorage.getItem('dniFirmaPersonal');
+        }
+
+        // Función para actualizar la imagen de la firma en el DNI
+        function updateFirmaDniDisplay(dataUrl) {
+            if (dniSignatureImg) {
+                dniSignatureImg.src = dataUrl ? dataUrl : defaultSignatureSrc;
+            }
+        }
+
+        // Función para dibujar una imagen (Data URL) en el canvas
+        function drawSignatureOnCanvas(dataUrl) {
+            if (dataUrl) {
+                const img = new Image();
+                img.onload = function() {
+                    ctx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height); // Limpiar por si acaso
+                    ctx.drawImage(img, 0, 0);
+                };
+                img.src = dataUrl;
+            } else {
+                // Si no hay dataUrl, limpiar el canvas
+                ctx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
+            }
+        }
+        
+        // Cargar firma guardada al iniciar
+        const savedFirma = loadFirma();
+        if (savedFirma) {
+            drawSignatureOnCanvas(savedFirma);
+            updateFirmaDniDisplay(savedFirma);
+        } else {
+            updateFirmaDniDisplay(null); // Asegurar que se muestre la default si no hay nada guardado
+        }
+
+        // Eventos de dibujo
+        function startDrawing(e) {
+            drawing = true;
+            const rect = firmaCanvas.getBoundingClientRect();
+            lastX = (e.clientX || e.touches[0].clientX) - rect.left;
+            lastY = (e.clientY || e.touches[0].clientY) - rect.top;
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            e.preventDefault(); // Prevenir scroll en touch
+            const rect = firmaCanvas.getBoundingClientRect();
+            const currentX = (e.clientX || e.touches[0].clientX) - rect.left;
+            const currentY = (e.clientY || e.touches[0].clientY) - rect.top;
+            
+            ctx.lineTo(currentX, currentY);
+            ctx.stroke();
+            lastX = currentX;
+            lastY = currentY;
+        }
+
+        function stopDrawing() {
+            if (!drawing) return;
+            drawing = false;
+            const dataUrl = firmaCanvas.toDataURL('image/png');
+            saveFirma(dataUrl);
+            updateFirmaDniDisplay(dataUrl);
+        }
+
+        firmaCanvas.addEventListener('mousedown', startDrawing);
+        firmaCanvas.addEventListener('mousemove', draw);
+        firmaCanvas.addEventListener('mouseup', stopDrawing);
+        firmaCanvas.addEventListener('mouseleave', stopDrawing); // Detener si el mouse sale del canvas
+
+        firmaCanvas.addEventListener('touchstart', startDrawing);
+        firmaCanvas.addEventListener('touchmove', draw);
+        firmaCanvas.addEventListener('touchend', stopDrawing);
+
+        // Botón Limpiar Firma
+        if (limpiarFirmaBtn) {
+            limpiarFirmaBtn.addEventListener('click', function() {
+                ctx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
+                saveFirma(null); // Remover de localStorage
+                updateFirmaDniDisplay(null); // Volver a la firma por defecto
+            });
+        }
+    }
+
+    // Escuchar cambios en localStorage desde otras pestañas/contextos
+    // Esto es menos crítico para el canvas en sí, pero sí para la imagen del DNI
+    window.addEventListener('storage', function(event) {
+        if (event.key === 'dniFirmaPersonal') {
+            if (dniSignatureImg) {
+                const newDataUrl = event.newValue;
+                updateFirmaDniDisplay(newDataUrl);
+                // Opcionalmente, si el canvas está visible en otra pestaña, también redibujarlo:
+                // if (firmaCanvas && document.getElementById('firmaCanvas')) { // Chequear si el canvas existe en la pestaña actual
+                //    drawSignatureOnCanvas(newDataUrl);
+                // }
+            }
+        }
+    });
+});
+
+
+//////// FOTO PERSONAL DNI ////////
+document.addEventListener('DOMContentLoaded', function() {
+    const fotoDniInput = document.querySelector('input[name="fotoDniInput"]');
+    // Asumimos que en tramites.html y dni-digital.html, la foto del DNI tiene alt="DNI_photoUrl"
+    // En detalle.html tiene alt="DNI_photo". Necesitaremos una forma de seleccionar la correcta o ambas.
+    // Por ahora, nos enfocamos en la que está en la maqueta principal del DNI.
+    const dniPhotoImg = document.querySelector('.DNI_profilePhoto[texttype="dniPhoto"] img'); // Selector más específico para la foto en el DNI
+    const defaultUserPhotoSrc = 'imgs/cara1.jpg'; // La imagen que debería estar por defecto.
+
+    // Función para guardar la foto personal en localStorage
+    function saveFotoPersonal(dataUrl) {
+        if (dataUrl) {
+            localStorage.setItem('dniFotoPersonal', dataUrl);
+        } else {
+            localStorage.removeItem('dniFotoPersonal'); // Si no hay dataUrl, quizás quitarla para volver al default
+        }
+    }
+
+    // Función para cargar la foto personal desde localStorage
+    function loadFotoPersonal() {
+        return localStorage.getItem('dniFotoPersonal');
+    }
+
+    // Función para actualizar el display de la foto del DNI
+    function updateFotoDniDisplay() {
+        if (!dniPhotoImg) return;
+
+        const savedFotoDataUrl = loadFotoPersonal();
+        if (savedFotoDataUrl) {
+            dniPhotoImg.src = savedFotoDataUrl;
+        } else {
+            // Si no hay foto guardada, asegurarse de que se muestre la foto por defecto.
+            // Esto es importante si el src original del HTML fuera diferente o si se quiere un botón "quitar foto".
+            // La corrección de ruta a imgs/cara1.jpg en el HTML ya debería manejar el caso inicial.
+            // Esta lógica asegura que si el usuario "quita" la foto (funcionalidad no implementada aun), vuelva a la por defecto.
+            if (dniPhotoImg.src !== defaultUserPhotoSrc && !dniPhotoImg.src.startsWith('data:image')) {
+                 // Solo cambia si no es ya la default y no es una data URL (para evitar recargas innecesarias)
+                // En realidad, el HTML ya debería tener imgs/cara1.jpg como src si no hay nada en localStorage.
+                // Esta función se enfoca en aplicar la foto de localStorage.
+            }
+        }
+    }
+    
+    // --- Lógica para la página tramites.html (input y display) ---
+    if (fotoDniInput) {
+        fotoDniInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    saveFotoPersonal(e.target.result);
+                    if (dniPhotoImg) {
+                        dniPhotoImg.src = e.target.result; // Actualizar inmediatamente
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // --- Lógica para actualizar el display en cualquier página que lo tenga ---
+    // Cargar la foto guardada al iniciar la página (después de que el DOM esté listo)
+    // Esto asegura que la foto del DNI correcta se muestre al cargar cualquier página que la contenga.
+    if (dniPhotoImg) {
+         const savedFotoDataUrl = loadFotoPersonal();
+         if (savedFotoDataUrl) {
+            dniPhotoImg.src = savedFotoDataUrl;
+         } else {
+            // Si no hay foto en localStorage, el src del HTML (imgs/cara1.jpg) se usará.
+            // Aseguramos que la ruta del HTML sea la correcta en los pasos de corrección de rutas.
+         }
+    }
+    
+
+    // Escuchar cambios en localStorage desde otras pestañas/contextos
+    window.addEventListener('storage', function(event) {
+        if (event.key === 'dniFotoPersonal') {
+            if (dniPhotoImg) {
+                 const newDataUrl = event.newValue;
+                 if (newDataUrl) {
+                    dniPhotoImg.src = newDataUrl;
+                 } else {
+                    // Si se elimina de localStorage, volver a la foto por defecto.
+                    // Esto requiere que el HTML tenga la ruta correcta a cara1.jpg
+                    const baseImageSrc = dniPhotoImg.getAttribute('data-default-src') || defaultUserPhotoSrc; 
+                    // Idealmente, el HTML ya tendrá imgs/cara1.jpg.
+                    // Si quisiéramos un botón "reset", este sería el lugar para poner la default.
+                    // Por ahora, si se borra de localstorage, la imagen no cambiará hasta recargar,
+                    // o necesitaríamos que el HTML ya tenga el src correcto.
+                    // La lógica actual es: si hay algo en LS, úsalo. Si no, confía en el src del HTML.
+                    // Para que un borrado en LS actualice a la default, el `updateFotoDniDisplay` debería llamarse.
+                    // Lo más simple es que al borrar de LS, la próxima carga de página mostrará la default.
+                 }
+            }
+        }
+    });
+});

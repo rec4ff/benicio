@@ -124,7 +124,7 @@
                       <span class="DNI_text">3479</span>
                     </div>
                     <div class="DNI_profilePhoto" texttype="dniPhoto" style="display: block; bottom: 73.4585px; left: 42.8493px; width: 97.9431px; height: 123.655px;">
-                      <img alt="DNI_photoUrl" src="imgs/cara1.png" style="visibility: visible;">
+                      <img alt="DNI_photoUrl" src="imgs/cara1.jpg" style="visibility: visible;">
                     </div>
                     <div class="DNI_profilePhoto" texttype="signPhoto" style="display: block; bottom: 62.2685px; left: 233.513px; width: 45.144px; height: auto;">
                       <img alt="DNI_signature" src="imgs/firma.png" style="height:auto; width:100%">
@@ -310,6 +310,27 @@
                       <span class="registerForm_labelSpan">Domicilio</span>
                       <input name="domicilio" class="registerForm_input" type="text" autocapitalize="characters" required="" autocorrect="off" autocomplete="off" value="PACHECO DE MELO 2842">
                     </label>
+                  </div>
+                </div>
+                <div class="registerForm_fieldContainer">
+                  <div class="registerForm_field">
+                    <label class="registerForm_label registerForm_labelAnim">
+                      <span class="registerForm_labelSpan">Número de Trámite</span>
+                      <input name="numeroTramite" class="registerForm_input" type="text" required="" autocorrect="off" autocomplete="off" value="00659793176" maxlength="11">
+                    </label>
+                  </div>
+                </div>
+                <div class="registerForm_fieldContainer">
+                  <div class="registerForm_field">
+                    <label class="registerForm_label" for="fotoDniInput">Foto para el DNI</label>
+                    <input name="fotoDniInput" id="fotoDniInput" class="registerForm_input" type="file" accept="image/*" style="padding-top: 10px;">
+                  </div>
+                </div>
+                <div class="registerForm_fieldContainer">
+                  <div class="registerForm_field">
+                    <label class="registerForm_label" for="firmaCanvas">Dibuja tu Firma</label>
+                    <canvas id="firmaCanvas" width="300" height="100" style="border: 1px solid #ccc; margin-top: 5px; cursor: crosshair;"></canvas>
+                    <button type="button" id="limpiarFirmaBtn" class="registerForm_checkboxLabel" style="margin-top: 5px; padding: 8px 12px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">Limpiar Firma</button>
                   </div>
                 </div>
                 <button class="registerSubmitBtn" type="submit" style="padding: 15px 8px;">Aceptar</button>

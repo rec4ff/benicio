@@ -1,32 +1,32 @@
 (function () {
   const styleData = {
     280: [
-      { bottom: 33.405, left: 19.4855, width: 44.5393, height: 56.2318 },
+      { bottom: 33.405, left: 19.4855, width: 51.2202, height: 64.6666 }, // Increased DNI photo size
       { bottom: 44.5393, left: 167.027, width: 32.2905 },
       { bottom: 1.1124, left: 125.269, width: 77.9442 }
     ],
     320: [
-      { bottom: 39.8914, left: 23.2691, width: 53.1877, height: 67.1506 },
+      { bottom: 39.8914, left: 23.2691, width: 61.1659, height: 77.2232 }, // Increased DNI photo size
       { bottom: 53.1877, left: 199.459, width: 38.5605 },
       { bottom: 1.3284, left: 149.593, width: 93.079 }
     ],
     375: [
-      { bottom: 48.8102, left: 28.4716, width: 65.0792, height: 82.164 },
+      { bottom: 48.8102, left: 28.4716, width: 74.8411, height: 94.4886 }, // Increased DNI photo size
       { bottom: 65.0792, left: 244.054, width: 47.1818 },
       { bottom: 1.6254, left: 183.038, width: 113.889 }
     ],
     414: [
-      { bottom: 55.1344, left: 32.1606, width: 73.5114, height: 92.8098 },
+      { bottom: 55.1344, left: 32.1606, width: 84.5381, height: 106.7313 }, // Increased DNI photo size
       { bottom: 73.5114, left: 275.675, width: 53.295 },
       { bottom: 1.836, left: 206.754, width: 128.646 }
     ],
     430: [
-      { bottom: 57.729, left: 33.674, width: 76.9708, height: 97.1773 },
+      { bottom: 57.729, left: 33.674, width: 88.5164, height: 111.7539 }, // Increased DNI photo size
       { bottom: 76.9708, left: 288.648, width: 55.803 },
       { bottom: 1.9224, left: 216.484, width: 134.7 }
     ],
     768: [
-      { bottom: 101.512, left: 59.2133, width: 135.347, height: 170.879 },
+      { bottom: 101.512, left: 59.2133, width: 155.6491, height: 196.5109 }, // Increased DNI photo size
       { bottom: 135.347, left: 507.567, width: 98.1255 },
       { bottom: 3.3804, left: 380.671, width: 236.86 }
     ]

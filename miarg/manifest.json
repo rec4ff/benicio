@@ -1,8 +1,8 @@
 {
   "name": "Mi Argentina",
   "short_name": "Mi Argentina",
-  "start_url": "/miarg/",
-  "scope": "/miarg/",
+  "start_url": "/benicio/miarg/",
+  "scope": "/benicio/miarg/",
   "display": "standalone",
   "background_color": "#3630ba",
   "theme_color": "#3630ba",
